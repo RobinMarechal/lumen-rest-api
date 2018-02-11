@@ -11,22 +11,22 @@ use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 /**
  * @property int            $id
  * @property \Carbon\Carbon $created_at
- * @property mixed          $posts
+ * @property mixed          $user
  * @property mixed          $comments
  */
-class User extends Model implements AuthenticatableContract, AuthorizableContract
+class Post extends Model implements AuthenticatableContract, AuthorizableContract
 {
     use Authenticatable, Authorizable;
     public $timestamps = false;
     public $dates = ['created_at'];
     public $temporalField = 'created_at';
-    protected $fillable = ['email'];
+    protected $fillable = ['content', 'user_id'];
 
-    public function posts(){
-        return $this->hasMany('App\Post');
+    public function user(){
+        return $this->belongsTo('App\User');
     }
 
-    public function comments() {
+    public function comments(){
         return $this->hasMany('App\Comment');
     }
 }
