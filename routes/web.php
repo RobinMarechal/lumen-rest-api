@@ -11,12 +11,6 @@
 |
 */
 
-$router->get('/', function () use ($router) {
-    return $router->app->version();
-});
-
-//Route::any("api/{resource}/{id?}/{relation?}/{relatedId?}", "RestController@dispatch")->name('api.dispatch');
-
 $router->group(['prefix' => 'api'], function () use ($router) {
     $router->get('{namespace}[/{id}[/{relation}[/{relationId}]]]', 'Rest\RestController@handleGet');
     $router->post('{namespace}', 'Rest\RestController@handlePost');

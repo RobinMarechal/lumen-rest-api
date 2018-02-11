@@ -14,24 +14,8 @@
 $factory->define(App\User::class, function (Faker\Generator $faker) {
     return [
         'email' => $faker->email,
+        'namd' => $faker->name
     ];
 });
-
-
-$factory->define(App\Post::class, function (Faker\Generator $faker, $args) {
-    return [
-        'content' => $faker->text,
-        'user_id' => isset($args['user_id']) ?: factory(App\User::class)->create()->id
-    ];
-});
-
-$factory->define(App\Comment::class, function (Faker\Generator $faker, $args) {
-    return [
-        'content' => $faker->text,
-        'post_id' => isset($args['post_id']) ?: factory(App\Post::class)->create()->id,
-        'user_id' => isset($args['user_id']) ?: factory(App\User::class)->create()->id
-    ];
-});
-
 
 
