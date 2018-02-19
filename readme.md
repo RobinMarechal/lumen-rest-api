@@ -91,7 +91,8 @@ class PostsController extends ApiController
 ##### Model:
 `app/Post.php`
 
-```php<?php
+```php
+<?php
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
