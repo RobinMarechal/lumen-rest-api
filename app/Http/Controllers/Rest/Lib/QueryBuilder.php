@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Rest;
+namespace App\Http\Controllers\Rest\Lib;
 
 use Carbon\Carbon;
 use function explode;
@@ -128,9 +128,12 @@ class QueryBuilder
     public function applyTemporalParameters()
     {
         $modelClassName = '\\' . $this->class;
-        $temporalField = (new $modelClassName())->temporalField;
+        $tmpModelInstance = new $modelClassName();
+        $temporalField = ($tmpModelInstance->temporalField ?:
+                            ($tmpModelInstance->timestamps ? 'created_at' :
+                                (isset($tmpModelInstance->dates[0]) ? $tmpModelInstance->dates[0] : null)));
 
-        if (isset($temporalField) && $temporalField != null) {
+        if ($temporalField) {
             $from = $this->request->filled("from") ? Carbon::parse($this->request->get("from")) : null;
             $to = $this->request->filled("to") ? Carbon::parse($this->request->get("to")) : null;
 

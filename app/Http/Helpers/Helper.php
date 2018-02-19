@@ -20,4 +20,10 @@ class Helper
 
         return 'App\\' . str_singular($reducedName);
     }
+
+
+    public static function arrayGetOrNull(array $array, $key)
+    {
+        return is_numeric($key) && isset($array[$key]) || array_key_exists($key, $array) ? $array[$key] : null;
+    }
 }
