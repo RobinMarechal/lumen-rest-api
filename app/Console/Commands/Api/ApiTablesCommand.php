@@ -146,15 +146,18 @@ class ApiTablesCommand extends Command
 
     protected function parseArgs()
     {
-        $this->tableName = $this->argument('table');
+        // plural and snake in case the user entered a model name instead of a table name
+        $this->tableName = str_plural(snake_case($this->argument('table')));
+        $this->tableName = preg_replace('/__+/', '_', $this->tableName);
 
         $tmpUpperTableName = substr(camel_case("a_$this->tableName"), 1);
+        $tmpPluralUpper = str_plural($tmpUpperTableName);
 
         // model's name is singular table's name with first letter uppercase
         $this->modelName = str_singular($tmpUpperTableName);
 
         // controller's name is table's name with first letter uppercase and followed by "Controller"
-        $this->controllerName = "{$tmpUpperTableName}Controller";
+        $this->controllerName = "{$tmpPluralUpper}Controller";
 
         // "field1,field2,..." => [field1, field2,...]
         $this->fillables = $this->option('fillables');
@@ -173,7 +176,7 @@ class ApiTablesCommand extends Command
     {
         if ($this->withMigration) {
             $migrationName = "create_{$this->tableName}_table";
-            $exitCode = $this->call("make:migration", ['name' => $migrationName]);
+            $this->call("make:migration", ['name' => $migrationName]);
         }
     }
 

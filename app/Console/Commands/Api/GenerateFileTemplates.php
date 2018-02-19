@@ -88,7 +88,6 @@ use Illuminate\Database\Eloquent\Model;
 class {{model_name}} extends Model
 {
     public $timestamps = true;
-    public $temporalField = \'created_at\';
     protected $fillable = {{model_fillable}};
 
     {{model_relation}}
