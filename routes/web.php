@@ -11,6 +11,7 @@
 |
 */
 
+
 $router->group(['prefix' => 'api'], function () use ($router) {
     $router->get('{namespace}[/{id}[/{relation}[/{relationId}]]]', 'Rest\RestController@handleGet');
     $router->post('{namespace}', 'Rest\RestController@handlePost');
@@ -19,3 +20,6 @@ $router->group(['prefix' => 'api'], function () use ($router) {
     $router->delete('{namespace}/{id}', 'Rest\RestController@handleDelete');
 });
 
+$router->get('/', function () use ($router) {
+    return $router->app->version();
+});

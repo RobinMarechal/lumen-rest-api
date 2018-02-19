@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Rest;
+namespace App\Http\Controllers\Rest\Lib;
 
 use App\Http\Helpers\Helper;
 use App\Http\Response\ResponseData;
