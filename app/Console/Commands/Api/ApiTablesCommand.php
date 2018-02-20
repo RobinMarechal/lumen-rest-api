@@ -3,7 +3,6 @@
 namespace App\Console\Commands\Api;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Artisan;
 
 /**
  * Class DeletePostsCommand
@@ -46,6 +45,30 @@ class ApiTablesCommand extends Command
     public $withMigration;
 
     /**
+     * If the model should use timestamp fields
+     * @var bool
+     */
+    public $timestamps = true;
+
+    /**
+     * Additional date fields
+     * @var array
+     */
+    public $dates = [];
+
+    /**
+     * Hidden fields
+     * @var array
+     */
+    public $hidden = [];
+
+    /**
+     * If the model should use soft deletes
+     * @var bool
+     */
+    public $softDeletes = false;
+
+    /**
      * The table's name
      * @var string
      */
@@ -55,7 +78,7 @@ class ApiTablesCommand extends Command
      * the table's fillable fields
      * @var array
      */
-    protected $fillables = [];
+    public $fillables = [];
 
     /**
      * The relation strings (not parsed)
@@ -67,26 +90,33 @@ class ApiTablesCommand extends Command
      * The parsed relation functions
      * @var array
      */
-    protected $parsedRelations = [];
+    public $parsedRelations = [];
 
     /**
      * The model class' name
      * @var string
      */
-    protected $modelName;
+    public $modelName;
 
     /**
      * The controller class' name
      * @var string
      */
-    protected $controllerName;
+    public $controllerName;
 
     /**
      * The console command name.
      *
      * @var string
      */
-    protected $signature = "api:table {table} {--fillables=} {--relations=} {--m}";
+    protected $signature = "api:table {table} 
+                                    {--F|fillables=} 
+                                    {--R|relations=} 
+                                    {--T|timestamps=} 
+                                    {--H|hidden=} 
+                                    {--softDeletes} 
+                                    {--D|dates=} 
+                                    {--M|migrations}";
 
     /**
      * The console command description.
@@ -160,15 +190,25 @@ class ApiTablesCommand extends Command
         $this->controllerName = "{$tmpPluralUpper}Controller";
 
         // "field1,field2,..." => [field1, field2,...]
-        $this->fillables = $this->option('fillables');
-        $this->fillables = explode(',', $this->fillables);
+        $this->fillables = $this->parseArrayOption('fillables');
 
         // "relation str 1, relation str 2" => [relation str 1, relation str 2];
-        $this->relations = $this->option('relations');
-        $this->relations = explode(',', $this->relations);
+        $this->relations = $this->parseArrayOption('relations');
 
-        // --m
-        $this->withMigration = $this->option('m');
+        // "field1,field2,..." => [field1, field2,...]
+        $this->dates = $this->parseArrayOption('dates');
+
+        // "field1,field2,..." => [field1, field2,...]
+        $this->hidden = $this->parseArrayOption('hidden');
+
+        // true = 'true|1|yes'
+        $this->timestamps = $this->parseBooleanOption('timestamps');
+
+        // true = 'true|1|yes'
+        $this->softDeletes = $this->parseBooleanOption('softDeletes');
+
+        // --M|migrations
+        $this->withMigration = $this->option('migrations');
     }
 
 
@@ -234,11 +274,11 @@ class ApiTablesCommand extends Command
     protected function createModel()
     {
         $modelFullPath = "$this->modelsBasePath/$this->modelName.php";
-        $modelFileContent = $this->compileModelTemplate($this->modelsNamespace, $this->modelName, $this->fillables, $this->parsedRelations);
+        $modelFileContent = $this->compileModelTemplate($this);
 
         $this->createFile($modelFullPath, $modelFileContent);
 
-        printf("Created controller: '$this->modelsNamespace\\$this->modelName' ('$modelFullPath')\n");
+        print("Created model: '$this->modelsNamespace\\$this->modelName' ('$modelFullPath')\n");
     }
 
 
@@ -253,10 +293,30 @@ class ApiTablesCommand extends Command
     protected function createController()
     {
         $controllerFullPath = "$this->controllersBasePath/$this->controllerName.php";
-        $controllerFileContent = $this->compileControllerTemplate($this->controllersNamespace, $this->controllerName);
+        $controllerFileContent = $this->compileControllerTemplate($this);
 
         $this->createFile($controllerFullPath, $controllerFileContent);
 
-        printf("Created controller: '$this->controllersNamespace\\$this->controllerName' ('$controllerFullPath')\n");
+        print("Created controller: '$this->controllersNamespace\\$this->controllerName' ('$controllerFullPath')\n");
+    }
+
+
+    protected function parseBooleanOption($optionName)
+    {
+        $value = strtolower($this->option($optionName));
+        return $value === 'true' || $value == 1 || $value === 'yes';
+    }
+
+
+    protected function parseArrayOption($optionName)
+    {
+        $optionValue = $this->option($optionName);
+
+        if(strlen($optionValue) === 0)
+            return [];
+
+        return array_map(function ($item) {
+            return trim($item);
+        }, explode(',', $optionValue));
     }
 }
